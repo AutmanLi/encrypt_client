@@ -12,6 +12,7 @@ import sys
 import servicemanager
 import threading
 import socket
+from socket_web import pyfhelSocket
 
 
 class encryptClient(win32serviceutil.ServiceFramework):
@@ -43,10 +44,11 @@ class encryptClient(win32serviceutil.ServiceFramework):
 
         self.logger.info('service is run...')
         while self.run:
-            self.logger.info('service is running...')
-            self.socket = socket.socket()
-            self.socket.bind('127.0.0.1', port)
-            self.socket.listen(5)
+            sock = pyfhelSocket(ip='202.114.40.141')
+            sock.open()
+            # self.socket = socket.socket()
+            # self.socket.bind(('127.0.0.1', port))
+            # self.socket.listen(5)
             time.sleep(2)
 
     def SvcStop(self):
