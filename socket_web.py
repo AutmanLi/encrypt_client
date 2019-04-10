@@ -21,6 +21,7 @@ import time
 from email.utils import formatdate
 import sys
 import urllib
+from pysm4 import encrypt_ecb, decrypt_ecb
 
 
 class pyfhelSocket(object):
@@ -135,6 +136,40 @@ class pyfhelSocket(object):
                 jsonstr_len = len(jsonstr)
                 responseHeader = self.getdefaultHeader(jsonstr_len)
 
+            # sm4 加密,解密文本
+            elif query['message'] == 'encryptText':
+                key_json = request.body
+                print('传输的文本：', key_json)
+
+                key = 'asd34%sadzf'
+
+                text_unencrypt = key_json[key_json.index('text=') + 5:]
+                text_unencrypt = urllib.parse.unquote(text_unencrypt)
+
+                print('text_decrypt:', text_unencrypt)
+                text_encrypt = encrypt_ecb(text_unencrypt, key)
+                print('text_encrypt:', text_encrypt)
+                jsondata = [{"result": text_encrypt}]
+                jsonstr = json.dumps(jsondata).encode('utf8')
+                jsonstr_len = len(jsonstr)
+                responseHeader = self.getdefaultHeader(jsonstr_len)
+
+            elif query['message'] == 'decryptText':
+                key_json = request.body
+                print('传输的文本：', key_json)
+                key = 'asd34%sadzf'
+
+                text_encrypt = key_json[key_json.index('cText=') + 6:]
+                text_encrypt = urllib.parse.unquote(text_encrypt)
+
+                print('text_encrypt:', text_encrypt)
+                text_decrypt = decrypt_ecb(text_encrypt, key)
+                print('text_decrypt:', text_decrypt)
+                jsondata = [{"result": text_decrypt}]
+                jsonstr = json.dumps(jsondata).encode('utf8')
+                jsonstr_len = len(jsonstr)
+                responseHeader = self.getdefaultHeader(jsonstr_len)
+
             sock.sendall(responseHeader)
             sock.sendall(jsonstr)
 
@@ -227,5 +262,5 @@ class pyfhelSocket(object):
 
 
 if __name__ == '__main__':
-    sock = pyfhelSocket()
+    sock = pyfhelSocket('202.114.40.141')
     sock.open()
